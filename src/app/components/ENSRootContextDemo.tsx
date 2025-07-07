@@ -25,6 +25,7 @@ import { createEnsPublicClient, EnsPublicClient } from "@ensdomains/ensjs";
 import { mainnet } from "viem/chains";
 import { http } from "viem";
 import { getRecords } from "@ensdomains/ensjs/public";
+import { processRootContext, isIPFSLink, IPFSContent } from "@/utils/ipfs";
 
 // Type definitions
 interface StepInfo {
@@ -47,6 +48,16 @@ const ENSRootContextDemo: React.FC = () => {
   const [ensAddress, setEnsAddress] = useState<string>("");
   const [agentReady, setAgentReady] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  
+  // New IPFS-related state
+  const [ipfsInfo, setIpfsInfo] = useState<{
+    isFromIPFS: boolean;
+    hash?: string;
+    gateway?: string;
+    originalContext?: string;
+  }>({
+    isFromIPFS: false,
+  });
 
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
   const [input, setInput] = useState('');
@@ -132,6 +143,7 @@ const ENSRootContextDemo: React.FC = () => {
     setError("");
     setStep(1);
     setAgentReady(false);
+    setIpfsInfo({ isFromIPFS: false }); // Reset IPFS info
 
     try {
       await new Promise<void>((resolve) => setTimeout(resolve, 800));
@@ -156,15 +168,52 @@ const ENSRootContextDemo: React.FC = () => {
         setLoading(false);
         setStep(0);
         return;
-      } else {
-        setRootContext(rootContextValue);
       }
+
       setEnsAddress(ethAddress || "No address set");
 
+      // Step 3: Check if root context is IPFS and process accordingly
       setStep(3);
-      await new Promise<void>((resolve) => setTimeout(resolve, 1200));
+      await new Promise<void>((resolve) => setTimeout(resolve, 800));
+
+      let processedContent: IPFSContent;
+      
+      try {
+        processedContent = await processRootContext(rootContextValue);
+        
+        // Set the processed content and IPFS info
+        setRootContext(processedContent.content);
+        setIpfsInfo({
+          isFromIPFS: processedContent.isFromIPFS,
+          hash: processedContent.hash,
+          gateway: processedContent.gateway,
+          originalContext: processedContent.isFromIPFS ? rootContextValue : undefined,
+        });
+
+        if (processedContent.isFromIPFS) {
+          console.log(`Successfully fetched AI context from IPFS: ${processedContent.hash}`);
+        }
+        
+      } catch (ipfsError) {
+        console.error("IPFS processing error:", ipfsError);
+        const errorMessage = ipfsError instanceof Error ? ipfsError.message : "Unknown IPFS error";
+        
+        if (isIPFSLink(rootContextValue)) {
+          setError(`Failed to fetch content from IPFS: ${errorMessage}. The root-context appears to be an IPFS link but the content could not be retrieved.`);
+          setLoading(false);
+          setStep(0);
+          return;
+        } else {
+          // If it's not an IPFS link and processing failed, treat as regular text
+          setRootContext(rootContextValue);
+          setIpfsInfo({ isFromIPFS: false });
+        }
+      }
 
       setStep(4);
+      await new Promise<void>((resolve) => setTimeout(resolve, 1200));
+
+      setStep(5);
       setAgentReady(true);
       setLoading(false);
     } catch (err) {
@@ -208,13 +257,15 @@ const ENSRootContextDemo: React.FC = () => {
     setMessages([]);
     setInput('');
     setChatError('');
+    setIpfsInfo({ isFromIPFS: false }); // Reset IPFS info
   };
 
   const steps: StepInfo[] = [
     { num: 1, label: "Resolving ENS", icon: Search },
     { num: 2, label: "Reading Context", icon: ExternalLink },
-    { num: 3, label: "Initializing AI", icon: Brain },
-    { num: 4, label: "Ready", icon: CheckCircle },
+    { num: 3, label: "Processing IPFS", icon: Globe },
+    { num: 4, label: "Initializing AI", icon: Brain },
+    { num: 5, label: "Ready", icon: CheckCircle },
   ];
 
   return (
@@ -594,7 +645,17 @@ const ENSRootContextDemo: React.FC = () => {
                     <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
                       <Code className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">Root Context</h3>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white">Root Context</h3>
+                      {ipfsInfo.isFromIPFS && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <Globe className="w-4 h-4 text-cyan-400" />
+                          <span className="text-sm text-cyan-300 font-medium">
+                            Loaded from IPFS: {ipfsInfo.hash?.substring(0, 12)}...
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <button
                     onClick={handleCopy}
@@ -608,6 +669,39 @@ const ENSRootContextDemo: React.FC = () => {
                     {copied ? <CheckCircle className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
                   </button>
                 </div>
+                
+                {/* IPFS Info Panel */}
+                {ipfsInfo.isFromIPFS && (
+                  <div className="mb-8 p-6 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-2xl border border-cyan-500/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Globe className="w-5 h-5 text-cyan-400" />
+                      <span className="text-lg font-bold text-cyan-200">IPFS Content Information</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-slate-400">Original ENS Record:</span>
+                        <div className="font-mono text-cyan-300 mt-1 p-2 bg-slate-950/50 rounded text-xs break-all">
+                          {ipfsInfo.originalContext}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">IPFS Hash:</span>
+                        <div className="font-mono text-cyan-300 mt-1 p-2 bg-slate-950/50 rounded text-xs break-all">
+                          {ipfsInfo.hash}
+                        </div>
+                      </div>
+                      {ipfsInfo.gateway && (
+                        <div className="md:col-span-2">
+                          <span className="text-slate-400">Retrieved from Gateway:</span>
+                          <div className="font-mono text-cyan-300 mt-1 p-2 bg-slate-950/50 rounded text-xs break-all">
+                            {ipfsInfo.gateway}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="bg-slate-950/80 rounded-2xl p-8 border border-emerald-500/20 shadow-inner backdrop-blur-sm">
                   <pre className="text-sm text-emerald-300 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed font-medium">
                     {rootContext}
@@ -685,6 +779,12 @@ const ENSRootContextDemo: React.FC = () => {
                     color: "from-emerald-500 to-teal-500"
                   },
                   {
+                    icon: Globe,
+                    title: "IPFS Processing",
+                    desc: "If context is an IPFS link, fetches content from decentralized storage",
+                    color: "from-orange-500 to-red-500"
+                  },
+                  {
                     icon: Brain,
                     title: "AI Initialization",
                     desc: "Initializes the agent with the discovered context",
@@ -710,20 +810,40 @@ const ENSRootContextDemo: React.FC = () => {
               </div>
 
               {/* Additional Info */}
-              <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
-                <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                  <Globe className="w-6 h-6 text-blue-400" />
-                  Setting Up Your ENS
-                </h4>
-                <p className="text-slate-300 leading-relaxed text-base mb-4">
-                  To enable AI chat functionality for your ENS name, add a <span className="font-mono bg-slate-800 px-2 py-1 rounded text-cyan-400">root-context</span> text record.
-                </p>
-                <div className="bg-slate-950/60 rounded-xl p-4 border border-slate-700/50">
-                  <p className="text-sm text-slate-400 mb-2">Example record:</p>
-                  <code className="text-emerald-300 text-sm block">
-                    Key: root-context<br/>
-                    Value: You are a helpful AI assistant...
-                  </code>
+              <div className="mt-8 space-y-6">
+                <div className="p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+                  <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <Globe className="w-6 h-6 text-blue-400" />
+                    Setting Up Your ENS
+                  </h4>
+                  <p className="text-slate-300 leading-relaxed text-base mb-4">
+                    To enable AI chat functionality for your ENS name, add a <span className="font-mono bg-slate-800 px-2 py-1 rounded text-cyan-400">root-context</span> text record.
+                  </p>
+                  <div className="bg-slate-950/60 rounded-xl p-4 border border-slate-700/50">
+                    <p className="text-sm text-slate-400 mb-2">Example record:</p>
+                    <code className="text-emerald-300 text-sm block">
+                      Key: root-context<br/>
+                      Value: You are a helpful AI assistant...
+                    </code>
+                  </div>
+                </div>
+                
+                <div className="p-6 bg-gradient-to-r from-orange-900/20 to-red-900/20 rounded-2xl border border-orange-500/20 backdrop-blur-sm">
+                  <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <Globe className="w-6 h-6 text-orange-400" />
+                    IPFS Support
+                  </h4>
+                  <p className="text-slate-300 leading-relaxed text-base mb-4">
+                    Your root-context can also be an IPFS link for decentralized storage. Supported formats:
+                  </p>
+                  <div className="bg-slate-950/60 rounded-xl p-4 border border-slate-700/50 space-y-2">
+                    <p className="text-sm text-slate-400 mb-2">Supported IPFS formats:</p>
+                    <code className="text-orange-300 text-sm block">
+                      ipfs://QmHash...<br/>
+                      https://ipfs.io/ipfs/QmHash...<br/>
+                      QmHash... (bare hash)
+                    </code>
+                  </div>
                 </div>
               </div>
 
