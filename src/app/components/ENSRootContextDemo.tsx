@@ -269,98 +269,15 @@ const ENSRootContextDemo: React.FC = () => {
             </div>
             
             {/* Info Button */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setShowHowItWorks(true)}
-              onMouseLeave={() => setShowHowItWorks(false)}
-            >
+            <div className="relative">
               <button
+                onClick={() => setShowHowItWorks(true)}
                 className="group relative p-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-2xl transition-all duration-300 hover:shadow-2xl backdrop-blur-sm animate-pulse-gentle"
                 title="How it works"
               >
                 <Info className="w-6 h-6 text-white group-hover:text-cyan-400 transition-colors" />
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
-
-              {/* How It Works Tooltip */}
-              {showHowItWorks && (
-                <div className="absolute top-full right-0 mt-4 w-96 z-[60] animate-fade-in">
-                  <div className="group relative">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl blur opacity-30 group-hover:opacity-40 transition duration-1000"></div>
-                    <div className="relative bg-black/95 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-                      {/* Tooltip Arrow */}
-                      <div className="absolute bottom-full right-6 w-0 h-0 border-l-[12px] border-r-[12px] border-b-[12px] border-l-transparent border-r-transparent border-b-white/20"></div>
-                      <div className="absolute bottom-full right-6 w-0 h-0 border-l-[10px] border-r-[10px] border-b-[10px] border-l-transparent border-r-transparent border-b-black/95" style={{ marginBottom: '-1px' }}></div>
-
-                      {/* Tooltip Header */}
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
-                          <Zap className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-white">How It Works</h3>
-                      </div>
-
-                      {/* Tooltip Content */}
-                      <div className="space-y-6">
-                        {[
-                          {
-                            icon: Search,
-                            title: "ENS Resolution",
-                            desc: "Resolves ENS name and searches for root-context text record",
-                            color: "from-blue-500 to-cyan-500"
-                          },
-                          {
-                            icon: ExternalLink,
-                            title: "Context Discovery",
-                            desc: "Reads AI instructions and personality from the context record",
-                            color: "from-emerald-500 to-teal-500"
-                          },
-                          {
-                            icon: Brain,
-                            title: "AI Initialization",
-                            desc: "Initializes the agent with the discovered context",
-                            color: "from-purple-500 to-pink-500"
-                          },
-                          {
-                            icon: Zap,
-                            title: "Interactive Chat",
-                            desc: "Chat with the context-aware AI agent",
-                            color: "from-amber-500 to-orange-500"
-                          }
-                        ].map(({ icon: Icon, title, desc, color }) => (
-                          <div key={title} className="flex gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-white/5 hover:border-white/10">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-xl`}>
-                              <Icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-bold text-white mb-2 text-lg">{title}</h4>
-                              <p className="text-slate-300 leading-relaxed text-sm">{desc}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Additional Info */}
-                      <div className="mt-6 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
-                        <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-3">
-                          <Globe className="w-5 h-5 text-blue-400" />
-                          Setting Up Your ENS
-                        </h4>
-                        <p className="text-slate-300 leading-relaxed text-sm mb-3">
-                          To enable AI chat functionality for your ENS name, add a <span className="font-mono bg-slate-800 px-2 py-1 rounded text-cyan-400">root-context</span> text record.
-                        </p>
-                        <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-700/50">
-                          <p className="text-xs text-slate-400 mb-1">Example record:</p>
-                          <code className="text-emerald-300 text-xs block">
-                            Key: root-context<br/>
-                            Value: You are a helpful AI assistant...
-                          </code>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
           <p className="text-xl text-slate-300 max-w-4xl leading-relaxed font-light">
@@ -371,9 +288,11 @@ const ENSRootContextDemo: React.FC = () => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-8 py-16">
-        <div className="grid lg:grid-cols-5 gap-12">
-          {/* Left Panel - ENS Resolution */}
-          <div className="lg:col-span-2 space-y-10">
+        <div className="space-y-12">
+          {/* ENS Resolution and Controls Row */}
+          <div className="grid lg:grid-cols-5 gap-12">
+            {/* Left Panel - ENS Resolution */}
+            <div className="lg:col-span-2 space-y-10">
             {/* ENS Input Card */}
             <div className="group relative">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse-gentle"></div>
@@ -486,49 +405,6 @@ const ENSRootContextDemo: React.FC = () => {
                       <p className="text-red-300 leading-relaxed text-lg font-medium">{error || chatError}</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Root Context Display */}
-            {rootContext && (
-              <div className="group relative col-span-2">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl animate-slide-up">
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
-                        <Code className="w-7 h-7 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white">Root Context</h3>
-                    </div>
-                    <button
-                      onClick={handleCopy}
-                      className={`p-4 rounded-2xl transition-all duration-300 shadow-lg ${
-                        copied 
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 hover:border-white/20'
-                      }`}
-                      title="Copy context"
-                    >
-                      {copied ? <CheckCircle className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                    </button>
-                  </div>
-                  <div className="bg-slate-950/80 rounded-2xl p-8 border border-emerald-500/20 shadow-inner backdrop-blur-sm">
-                    <pre className="text-sm text-emerald-300 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed font-medium">
-                      {rootContext}
-                    </pre>
-                  </div>
-                  {ensAddress && (
-                    <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
-                      <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-blue-400" />
-                        <span className="text-sm font-bold text-blue-200">
-                          ETH Address: <span className="font-mono text-blue-300 text-base">{ensAddress}</span>
-                        </span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -716,8 +592,164 @@ const ENSRootContextDemo: React.FC = () => {
               </div>
             )}
           </div>
+          </div>
+
+          {/* Full-width Root Context Display */}
+          {rootContext && (
+            <div className="group relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+              <div className="relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl animate-slide-up">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
+                      <Code className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">Root Context</h3>
+                  </div>
+                  <button
+                    onClick={handleCopy}
+                    className={`p-4 rounded-2xl transition-all duration-300 shadow-lg ${
+                      copied 
+                        ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                        : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 hover:border-white/20'
+                    }`}
+                    title="Copy context"
+                  >
+                    {copied ? <CheckCircle className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
+                  </button>
+                </div>
+                <div className="bg-slate-950/80 rounded-2xl p-8 border border-emerald-500/20 shadow-inner backdrop-blur-sm">
+                  <pre className="text-sm text-emerald-300 whitespace-pre-wrap font-mono overflow-x-auto leading-relaxed font-medium">
+                    {rootContext}
+                  </pre>
+                </div>
+                {ensAddress && (
+                  <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-3">
+                      <Globe className="w-5 h-5 text-blue-400" />
+                      <span className="text-sm font-bold text-blue-200">
+                        ETH Address: <span className="font-mono text-blue-300 text-base">{ensAddress}</span>
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Reset button - moved out of grid */}
+          {step > 0 && (
+            <div className="flex justify-center">
+              <button
+                onClick={reset}
+                className="group relative px-12 py-5 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white rounded-2xl font-bold text-lg transition-all duration-300 hover:shadow-2xl backdrop-blur-sm overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <span className="relative flex items-center justify-center gap-3">
+                  <ArrowRight className="w-5 h-5 transform rotate-180" />
+                  Try Another ENS Name
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* How It Works Modal */}
+      {showHowItWorks && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="group relative max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl blur opacity-30 group-hover:opacity-40 transition duration-1000"></div>
+            <div className="relative bg-black/95 backdrop-blur-xl border border-white/20 rounded-3xl p-10 shadow-2xl">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
+                    <Zap className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white">How It Works</h3>
+                </div>
+                <button
+                  onClick={() => setShowHowItWorks(false)}
+                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 rounded-2xl transition-all duration-300 text-white hover:text-red-400"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="space-y-8">
+                {[
+                  {
+                    icon: Search,
+                    title: "ENS Resolution",
+                    desc: "Resolves ENS name and searches for root-context text record",
+                    color: "from-blue-500 to-cyan-500"
+                  },
+                  {
+                    icon: ExternalLink,
+                    title: "Context Discovery",
+                    desc: "Reads AI instructions and personality from the context record",
+                    color: "from-emerald-500 to-teal-500"
+                  },
+                  {
+                    icon: Brain,
+                    title: "AI Initialization",
+                    desc: "Initializes the agent with the discovered context",
+                    color: "from-purple-500 to-pink-500"
+                  },
+                  {
+                    icon: Zap,
+                    title: "Interactive Chat",
+                    desc: "Chat with the context-aware AI agent",
+                    color: "from-amber-500 to-orange-500"
+                  }
+                ].map(({ icon: Icon, title, desc, color }) => (
+                  <div key={title} className="flex gap-6 p-6 rounded-2xl hover:bg-white/5 transition-all duration-300 border border-white/5 hover:border-white/10">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center flex-shrink-0 shadow-xl`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-white mb-3 text-xl">{title}</h4>
+                      <p className="text-slate-300 leading-relaxed text-base">{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+                <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                  <Globe className="w-6 h-6 text-blue-400" />
+                  Setting Up Your ENS
+                </h4>
+                <p className="text-slate-300 leading-relaxed text-base mb-4">
+                  To enable AI chat functionality for your ENS name, add a <span className="font-mono bg-slate-800 px-2 py-1 rounded text-cyan-400">root-context</span> text record.
+                </p>
+                <div className="bg-slate-950/60 rounded-xl p-4 border border-slate-700/50">
+                  <p className="text-sm text-slate-400 mb-2">Example record:</p>
+                  <code className="text-emerald-300 text-sm block">
+                    Key: root-context<br/>
+                    Value: You are a helpful AI assistant...
+                  </code>
+                </div>
+              </div>
+
+              {/* Close button at bottom */}
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setShowHowItWorks(false)}
+                  className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-2xl font-bold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/50"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
