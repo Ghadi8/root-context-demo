@@ -21,9 +21,9 @@ import {
   Code,
   Info,
 } from "lucide-react";
-import { createEnsPublicClient } from "@ensdomains/ensjs";
+import { createEnsPublicClient, EnsPublicClient } from "@ensdomains/ensjs";
 import { mainnet } from "viem/chains";
-import { http, createPublicClient } from "viem";
+import { http } from "viem";
 import { getRecords } from "@ensdomains/ensjs/public";
 
 // Type definitions
@@ -119,17 +119,11 @@ const ENSRootContextDemo: React.FC = () => {
   };
 
   const client = React.useMemo(() => {
-    try {
+    {
       return createEnsPublicClient({
         chain: mainnet,
         transport: http("https://eth.drpc.org"),
-      });
-    } catch (error) {
-      console.warn("Failed to create ENS client, using fallback:", error);
-      return createPublicClient({
-        chain: mainnet,
-        transport: http("https://eth.drpc.org"),
-      });
+      }) as EnsPublicClient;
     }
   }, []);
 
@@ -142,7 +136,7 @@ const ENSRootContextDemo: React.FC = () => {
     try {
       await new Promise<void>((resolve) => setTimeout(resolve, 800));
 
-      const result: ENSRecordsResult = await getRecords(client as any, {
+      const result: ENSRecordsResult = await getRecords(client, {
         name: name,
         texts: ["root-context"],
         coins: ["60"],
@@ -196,10 +190,6 @@ const ENSRootContextDemo: React.FC = () => {
         handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
       }
     }
-  };
-
-  const handleExampleClick = (name: string): void => {
-    setEnsName(name);
   };
 
   const handleCopy = async () => {
