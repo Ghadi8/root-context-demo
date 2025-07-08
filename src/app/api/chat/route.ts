@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, rootContext } = await req.json();
+    const { messages, rootContext, ensName } = await req.json();
 
     // Check if API key is configured
     if (!process.env.OPENAI_API_KEY) {
@@ -25,9 +25,13 @@ export async function POST(req: NextRequest) {
 
     const systemMessage = {
       role: 'system' as const,
-      content: `You are an AI assistant with the following context and instructions:
+      content: `Hello I am the agent of ${ensName || 'an ENS name'}. 
+
+You are an AI assistant with the following context and instructions:
 
 ${contextToUse}
+
+IMPORTANT: For your very first response in this conversation, please start by greeting the user and introducing yourself as "Hello! I am the agent of ${ensName || 'this ENS name'}." and then proceed to explain your capabilities based on the context provided.
 
 Please respond according to this context and be helpful to the user. If the context provides specific instructions about your role, personality, or capabilities, follow them closely.`
     };

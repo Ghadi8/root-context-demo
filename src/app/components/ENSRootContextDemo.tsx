@@ -39,8 +39,16 @@ interface ENSRecordsResult {
   coins?: Array<{ id: number; value: string }>;
 }
 
-const ENSRootContextDemo: React.FC = () => {
-  const [ensName, setEnsName] = useState<string>("");
+interface ENSRootContextDemoProps {
+  initialEnsName?: string;
+  autoResolve?: boolean;
+}
+
+const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({ 
+  initialEnsName = "",
+  autoResolve = false 
+}) => {
+  const [ensName, setEnsName] = useState<string>(initialEnsName);
   const [loading, setLoading] = useState<boolean>(false);
   const [rootContext, setRootContext] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -65,6 +73,18 @@ const ENSRootContextDemo: React.FC = () => {
   const [chatError, setChatError] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
+  // Auto-resolve effect when component mounts with initialEnsName
+  React.useEffect(() => {
+    if (autoResolve && initialEnsName && initialEnsName.trim()) {
+      // Small delay to allow UI to render first
+      const timer = setTimeout(() => {
+        resolveENSName(initialEnsName.trim());
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [autoResolve, initialEnsName]);
+
   const handleChatSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isChatLoading) return;
@@ -84,6 +104,7 @@ const ENSRootContextDemo: React.FC = () => {
         body: JSON.stringify({
           messages: [...messages, userMessage],
           rootContext: rootContext,
+          ensName: ensName,
         }),
       });
 
@@ -215,6 +236,13 @@ const ENSRootContextDemo: React.FC = () => {
 
       setStep(5);
       setAgentReady(true);
+      
+      // Add a welcome message from the agent
+      setMessages([{
+        role: 'assistant',
+        content: `Hello! I am the agent of ${name}. I've been initialized with the context from this ENS name and I'm ready to assist you. How can I help you today?`
+      }]);
+      
       setLoading(false);
     } catch (err) {
       console.error("ENS resolution error:", err);
@@ -251,13 +279,19 @@ const ENSRootContextDemo: React.FC = () => {
     setStep(0);
     setRootContext("");
     setError("");
-    setEnsName("");
     setEnsAddress("");
     setAgentReady(false);
     setMessages([]);
     setInput('');
     setChatError('');
     setIpfsInfo({ isFromIPFS: false }); // Reset IPFS info
+    
+    // If we're on a dynamic route (initialEnsName exists), navigate to home
+    if (initialEnsName) {
+      window.location.href = '/';
+    } else {
+      setEnsName("");
+    }
   };
 
   const steps: StepInfo[] = [
@@ -302,10 +336,32 @@ const ENSRootContextDemo: React.FC = () => {
                 </div>
               </div>
               <div>
+                <div className="flex items-center gap-3 mb-2">
+                  {initialEnsName && (
+                    <>
+                      <button
+                        onClick={() => window.location.href = '/'}
+                        className="text-lg text-slate-400 hover:text-cyan-300 transition-colors underline decoration-dotted"
+                      >
+                        Home
+                      </button>
+                      <ArrowRight className="w-4 h-4 text-slate-500" />
+                      <span className="text-lg text-purple-300 font-bold">{initialEnsName}</span>
+                    </>
+                  )}
+                </div>
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent tracking-tight mb-2">
-                  ENS Root-Context AI
+                  {initialEnsName ? `${initialEnsName} Agent` : 'ENS Root-Context AI'}
                 </h1>
-                <p className="text-xl text-cyan-200/80 font-medium">Intelligent AI agents through decentralized naming</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-xl text-cyan-200/80 font-medium">Intelligent AI agents through decentralized naming</p>
+                  {initialEnsName && (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30 backdrop-blur-sm">
+                      <Globe className="w-4 h-4 text-purple-300" />
+                      <span className="text-purple-200 font-bold text-sm">Direct Access</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -324,6 +380,11 @@ const ENSRootContextDemo: React.FC = () => {
           <p className="text-xl text-slate-300 max-w-4xl leading-relaxed font-light">
             Discover and interact with <span className="text-cyan-400 font-medium">AI agents</span> through ENS names using intelligent context resolution.
             Each ENS name can define its own <span className="text-purple-400 font-medium">AI personality</span> and capabilities.
+            {!initialEnsName && (
+              <span className="block mt-4 text-lg text-slate-400">
+                💡 Try direct URLs like <code className="bg-slate-800/50 px-2 py-1 rounded text-cyan-300">localhost:3000/vitalik.eth</code> for instant access!
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -356,6 +417,12 @@ const ENSRootContextDemo: React.FC = () => {
                       disabled={loading}
                       onKeyPress={handleKeyPress}
                     />
+                    {initialEnsName && autoResolve && (
+                      <div className="text-sm text-cyan-300 flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        <span>Loaded from URL route (you can edit this field)</span>
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -458,7 +525,7 @@ const ENSRootContextDemo: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 <span className="relative flex items-center justify-center gap-3">
                   <ArrowRight className="w-5 h-5 transform rotate-180" />
-                  Try Another ENS Name
+                  {initialEnsName ? 'Go to Home' : 'Try Another ENS Name'}
                 </span>
               </button>
             )}
@@ -493,6 +560,25 @@ const ENSRootContextDemo: React.FC = () => {
                     <div className="text-right">
                       <div className="text-sm text-slate-400 font-medium">Active Context:</div>
                       <div className="font-bold text-white text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">{ensName}</div>
+                      <button
+                        onClick={async () => {
+                          const url = `${window.location.origin}/${ensName}`;
+                          await navigator.clipboard.writeText(url);
+                          // Simple visual feedback
+                          const button = document.activeElement as HTMLButtonElement;
+                          if (button) {
+                            button.textContent = 'Copied!';
+                            setTimeout(() => {
+                              button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>Share Agent';
+                            }, 1500);
+                          }
+                        }}
+                        className="mt-2 text-xs text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
+                        title="Copy shareable link"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Share Agent
+                      </button>
                     </div>
                   </div>
 
@@ -731,7 +817,7 @@ const ENSRootContextDemo: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 <span className="relative flex items-center justify-center gap-3">
                   <ArrowRight className="w-5 h-5 transform rotate-180" />
-                  Try Another ENS Name
+                  {initialEnsName ? 'Go to Home' : 'Try Another ENS Name'}
                 </span>
               </button>
             </div>
