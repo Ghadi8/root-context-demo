@@ -379,12 +379,7 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
           </div>
           <p className="text-xl text-slate-300 max-w-4xl leading-relaxed font-light">
             Discover and interact with <span className="text-cyan-400 font-medium">AI agents</span> through ENS names using intelligent context resolution.
-            Each ENS name can define its own <span className="text-purple-400 font-medium">AI personality</span> and capabilities.
-            {!initialEnsName && (
-              <span className="block mt-4 text-lg text-slate-400">
-                💡 Try direct URLs like <code className="bg-slate-800/50 px-2 py-1 rounded text-cyan-300">localhost:3000/vitalik.eth</code> for instant access!
-              </span>
-            )}
+            Each ENS name can define its own <span className="text-purple-400 font-medium">AI personality</span> and capabilities, allowing for personalized interactions and services.
           </p>
         </div>
       </div>
