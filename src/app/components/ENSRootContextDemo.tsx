@@ -127,7 +127,9 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
       const decoder = new TextDecoder();
       let assistantResponse = '';
 
+      // Add empty assistant message and immediately stop loading to remove typing indicator
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setIsChatLoading(false);
 
       if (reader) {
         while (true) {
@@ -151,7 +153,6 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
       console.error('Chat error:', error);
       setChatError(`Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setMessages(prev => prev.slice(0, -1));
-    } finally {
       setIsChatLoading(false);
     }
   };
