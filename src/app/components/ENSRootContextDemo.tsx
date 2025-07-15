@@ -383,7 +383,7 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
                     />
                     <span className="text-white/40 font-bold text-lg">×</span>
                     <img 
-                      src="/justaname.svg" 
+                      src="/justaname.png" 
                       alt="JustaName" 
                       className="h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
                     />
