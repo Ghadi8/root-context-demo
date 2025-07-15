@@ -73,6 +73,16 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
   const [chatError, setChatError] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
+  // Ref for auto-scrolling chat messages
+  const messagesContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  React.useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // Auto-resolve effect when component mounts with initialEnsName
   React.useEffect(() => {
     if (autoResolve && initialEnsName && initialEnsName.trim()) {
@@ -362,6 +372,22 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
                     </div>
                   )}
                 </div>
+                {/* Branding section */}
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 px-4 py-2 bg-black/20 backdrop-blur-sm rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 w-fit">
+                    <img 
+                      src="/unruggable.png" 
+                      alt="Unruggable" 
+                      className="h-7 w-auto opacity-90 hover:opacity-100 transition-opacity"
+                    />
+                    <span className="text-white/40 font-bold text-lg">×</span>
+                    <img 
+                      src="/justaname.svg" 
+                      alt="JustaName" 
+                      className="h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -578,7 +604,10 @@ const ENSRootContextDemo: React.FC<ENSRootContextDemoProps> = ({
                   </div>
 
                   {/* Chat Messages */}
-                  <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gradient-to-b from-transparent to-black/20">
+                  <div 
+                    ref={messagesContainerRef}
+                    className="flex-1 overflow-y-auto p-8 space-y-8 bg-gradient-to-b from-transparent to-black/20"
+                  >
                     {messages.length === 0 ? (
                       <div className="flex items-center justify-center h-full text-center">
                         <div className="animate-bounce-slow">
